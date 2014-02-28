@@ -20,6 +20,7 @@ import org.semanticweb.owlapi.util.BidirectionalShortFormProvider;
 import org.semanticweb.owlapi.util.BidirectionalShortFormProviderAdapter;
 import org.semanticweb.owlapi.util.ShortFormProvider;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
+
 import java.io.File;
 import java.util.*;
 
@@ -28,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.semanticweb.HermiT.Reasoner;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
@@ -37,6 +39,12 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 public class CountingAlgorithm {
 	
 private static OWLOntology EEGOwl;
+public static OWLOntology getEEGOwl() {
+	return EEGOwl;
+}
+public static void setEEGOwl(OWLOntology eEGOwl) {
+	EEGOwl = eEGOwl;
+}
 public CountingAlgorithm(OWLOntology EEGOwl){
 	this.EEGOwl = EEGOwl;
 }
@@ -435,10 +443,62 @@ public CountingAlgorithm(OWLOntology EEGOwl){
 	         return individuals;
 	}
 	
+	 @SuppressWarnings("null")
+	public ArrayList<OWLNamedIndividual> GetClassInstancesofEEGFile(OWLNamedIndividual pat , OWLOntology owlfile)
+	{
+		
+		/*Get Class instances for every EEG File*/
+		ArrayList<OWLNamedIndividual> PatientProperties = new ArrayList<OWLNamedIndividual>();
+		  OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+         OWLReasoner reasoner = CountingAlgorithm.createReasoner(owlfile);
+	        
+	        ShortFormProvider shortFormProvider = new SimpleShortFormProvider();
+  
+  
+	        DLQueryEngine countind = new DLQueryEngine(reasoner, shortFormProvider);
+	        OWLDataFactory fac = manager.getOWLDataFactory();
+           OWLObjectProperty knowtator_text_source_annotation = fac.getOWLObjectProperty(IRI
+	                 .create("http://www.owl-ontologies.com/unnamed.owl#knowtator_text_source_annotation"));
+	         // Now ask the reasoner for the knowtator_text_source_annotation property values for patient individual which is a file name
+	         NodeSet<OWLNamedIndividual> AnnotationInds = reasoner.getObjectPropertyValues(pat, knowtator_text_source_annotation);
+	         
+	         System.out.println("AnnotationInds are " + AnnotationInds.getFlattened());
+	         //Every file has many AnnotationInds , find the knowtator annotated mention inds for each of these Annotation Inds
+	         
+	         OWLObjectProperty knowtator_annotated_mention = fac.getOWLObjectProperty(IRI
+		                 .create("http://www.owl-ontologies.com/unnamed.owl#knowtator_annotated_mention"));
+	         
+	         OWLObjectProperty knowtator_mention_class = fac.getOWLObjectProperty(IRI
+	                 .create("http://www.owl-ontologies.com/unnamed.owl#knowtator_mention_class"));
+	         //
+	         for(OWLNamedIndividual i : AnnotationInds.getFlattened() )
+	         {
+	        	 NodeSet<OWLNamedIndividual> Annotation_mentionInd = reasoner.getObjectPropertyValues(i, knowtator_annotated_mention);
+	        	 System.out.println("Annotated mention " + Annotation_mentionInd.getFlattened());
+	        	 
+	        	 
+	        	 for(OWLNamedIndividual j : Annotation_mentionInd.getFlattened() )
+	        	 {
+	        		 NodeSet<OWLNamedIndividual> Classes = reasoner.getObjectPropertyValues(j, knowtator_mention_class);
+	        		 System.out.println(Classes.getFlattened());
+	        		 for(OWLNamedIndividual c : Classes.getFlattened())
+	        		 {
+	        			 System.out.println("Classes are : " + c);
+
+	        				 PatientProperties.add(c);
+	        			 
+
+	        		 }
+	        	 }
+	         }
+	        	 
+	         return PatientProperties;
+   }
+	
 	public static Set<OWLClass> GetAllsubclassesOfEEG(OWLOntology EEGOwl ,String Classname ) throws OWLOntologyCreationException {
 		
 		  OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-        OWLReasoner reasoner = createReasoner(EEGOwl);
+		  OWLReasoner reasoner = createReasoner(EEGOwl);
 	        
 	        ShortFormProvider shortFormProvider = new SimpleShortFormProvider();
 	        
@@ -455,7 +515,9 @@ public CountingAlgorithm(OWLOntology EEGOwl){
 	         // individuals. Again, we just want the individuals, so get a flattened
 	         // set.
 
+	         
 	         Set<OWLClass> SubClasses = SubClassesOWlSet.getFlattened();
+	         System.out.println("Total subclasses found is : " + SubClasses.size() );
 	         System.out.println("SubClasses of 	EEG: ");
 	         for (OWLClass ind : SubClasses) {
 	             System.out.println(ind);
@@ -463,7 +525,7 @@ public CountingAlgorithm(OWLOntology EEGOwl){
 	         System.out.println("\n");
 	         return SubClasses;
 	}
-	    private static OWLReasoner createReasoner(final OWLOntology rootOntology) {
+	    public static OWLReasoner createReasoner(final OWLOntology rootOntology) {
 	        // We need to create an instance of OWLReasoner. An OWLReasoner provides
 	        // the basic query functionality that we need, for example the ability
 	        // obtain the subclasses of a class etc. To do this we use a reasoner

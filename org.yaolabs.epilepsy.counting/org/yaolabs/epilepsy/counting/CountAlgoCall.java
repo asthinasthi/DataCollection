@@ -11,9 +11,9 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.yaolabs.epilepsy.counting.CountingAlgorithm;
 
-public class CountAlgoCall {
+public  class CountAlgoCall {
 	
-	private static OWLOntology EEGOwl;
+	public static OWLOntology EEGOwl;
 	public CountAlgoCall(OWLOntology EEGOwl )
 	{
 		this.EEGOwl = EEGOwl;
@@ -25,7 +25,7 @@ public class CountAlgoCall {
 	public static Set<OWLNamedIndividual> AllFileindividuals = null;
 	public static Set<OWLClass> SubClassesofEEG = null;
 	public static ArrayList<OWLNamedIndividual> IndividualsofthisClass = null;
-	public static Set<OWLNamedIndividual> getAllFileindividuals() {
+	public Set<OWLNamedIndividual> getAllFileindividuals() {
 		return AllFileindividuals;
 	}
 
@@ -43,6 +43,15 @@ public class CountAlgoCall {
 		IndividualsPerFile = individualsPerFile;
 	}
 
+
+	public Set<OWLClass> getSubClassesofEEG() {
+		return SubClassesofEEG;
+	}
+
+	public  void setSubClassesofEEG(Set<OWLClass> subClassesofEEG) {
+		SubClassesofEEG = subClassesofEEG;
+	}
+	
 	public static Set<OWLNamedIndividual> CountAllFileIndsinProj() throws OWLOntologyCreationException
 	{
 		
@@ -116,12 +125,5 @@ public class CountAlgoCall {
 	System.out.println();
 	}
 
-	public Set<OWLClass> getSubClassesofEEG() {
-		return SubClassesofEEG;
-	}
-
-	public static void setSubClassesofEEG(Set<OWLClass> subClassesofEEG) {
-		SubClassesofEEG = subClassesofEEG;
-	}
 
 }
